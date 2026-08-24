@@ -90,7 +90,7 @@ NRBC_altas_LR_df$celltype=factor(NRBC_altas_LR_df$celltype, levels = levels(filt
 ############################################################################################################################################
 #-----------the specific interactions ---------------------------#
 ############################################################################################################################################
-fetal_adult_NRBC_whole_marker=readRDS('Protein_NRBC_marker/res_data/fetal_adult_NRBC_whole_marker.rds')
+fetal_adult_NRBC_whole_marker=readRDS('Protein_NRBC_marker/res_data/HSPC_derived_nRBC_wholelevel_RNA_markers.rds')
 sub_fetal_adult_all_Ery_tissue_markers=read.csv('Protein_NRBC_marker/DE_marker/fetal_adult_all_Ery_RNA_markers.csv')
 sub_fetal_adult_all_Ery_tissue_markers=sub_fetal_adult_all_Ery_tissue_markers[,-1]
 

@@ -195,13 +195,22 @@ ggsave(p,filename='res_pic/main_figure5/adult_F_cell_marker_vlnplot.pdf',width =
 library(tibble)
 library(edgeR)
 
+# adult NRBCs from mom 
+mom_NRBC_smartseq_NRBC_exp_df=readRDS('../zx_lab_NRBC/experiment_data/adult_NRBC_smartseq2_genecount.csv')
+mom_NRBC_smartseq_NRBC_exp_df=log2(cpm(mom_NRBC_smartseq_NRBC_exp_df)+1)
+
+NRBC_marker=c('HBB','TFRC')
 fetal_markers=c('HBG1','HBG2','HBZ', "TUBB6","HSPA1A","HSPA1B",'IGF2BP1','IGF2BP3','DLK1','CISH','HIF3A')
 adult_markers=c( 'HBD',"CA1","PDZK1IP1", "ANXA1","NECAB1","ANKRD28","TSC22D3","IFIT1B",'LGALS9','CXCR4')
+
+p=pheatmap(mom_NRBC_smartseq_NRBC_exp_df[c(fetal_markers,adult_markers)[c(fetal_markers,adult_markers)%in% rownames(mom_NRBC_smartseq_NRBC_exp_df)],],
+           color = colorRampPalette(colors = c('navy','white','firebrick3'))(100),cluster_rows = F,cluster_cols = F)
+ggsave(as.ggplot(p),filename='res_pic/main_figure5/mom_adult_smartseq2_fNRBC_heatmap.pdf',height = 6,width = 3)
 
 
 # UCB  wpc NRBCs
 
-UCB_NRBCs_df=read.csv('../zx_lab_NRBC/experiment_data/UCB_41_wpc_NRBCs_df.csv')
+UCB_NRBCs_df=read.csv('../zx_lab_NRBC/experiment_data/UCB_NRBCs_df.csv')
 UCB_NRBCs_df=UCB_NRBCs_df[!duplicated(UCB_NRBCs_df$gene_symbol),]
 rownames(UCB_NRBCs_df)=UCB_NRBCs_df$gene_symbol
 UCB_NRBCs_df=UCB_NRBCs_df[,2:3]
@@ -212,35 +221,18 @@ p=pheatmap(cho_df,col=colorRampPalette(colors = c('navy','white','firebrick3'))(
 ggsave(as.ggplot(p),filename='res_pic/main_figure5/UCB_smartseq2_fNRBC_heatmap.pdf',height = 6,width = 3)
 
 
-## CD235a+DRAQ5+
+## CD235a+DRAQ5+ & DLK1
 
-smartseq_NRBC_exp_df=read.csv('../zx_lab_NRBC/experiment_data/202606_CD235aDRAQ5_NRBC.csv')
-smartseq_NRBC_exp_df=data.frame(row.names = smartseq_NRBC_exp_df$X,NRBC=smartseq_NRBC_exp_df$mPBMC1)
-smartseq_NRBC_exp_df=log2(cpm(smartseq_NRBC_exp_df)+1)
-markers=c(fetal_markers,adult_markers)[c(fetal_markers,adult_markers) %in% rownames(smartseq_NRBC_exp_df) ]
-cho_smartseq_NRBC_exp_df=data.frame(row.names = markers,smartseq_NRBC_exp_df[markers,])
-colnames(cho_smartseq_NRBC_exp_df)='NRBC'   
-
-#------------------- CD235a+DRAQ5+DLK1+----------------------------#
-
-DLK_pos_NRBC_samrtseq2_df=read.csv('../zx_lab_NRBC/experiment_data/202607_DLK1_pos_NRBC.csv')
+DLK_pos_NRBC_samrtseq2_df=read.csv('../zx_lab_NRBC/experiment_data/mPBMC_smartseq_DLK1_NRBC_df.csv')
 rownames(DLK_pos_NRBC_samrtseq2_df)=DLK_pos_NRBC_samrtseq2_df$X
 DLK_pos_NRBC_samrtseq2_df=DLK_pos_NRBC_samrtseq2_df[,-1]
 DLK_pos_NRBC_samrtseq2_df=log2(edgeR::cpm(DLK_pos_NRBC_samrtseq2_df)+1)# 
 DLK_pos_NRBC_samrtseq2_df=DLK_pos_NRBC_samrtseq2_df[c(fetal_markers,adult_markers)[c(fetal_markers,adult_markers) %in% rownames(DLK_pos_NRBC_samrtseq2_df)],]
 DLK_pos_NRBC_samrtseq2_df=data.frame(DLK_pos_NRBC_samrtseq2_df)
 
-
-DLK_pos_NRBC_samrtseq2_df[ rownames(cho_smartseq_NRBC_exp_df)[!rownames(cho_smartseq_NRBC_exp_df) %in% rownames(DLK_pos_NRBC_samrtseq2_df)],c('DLK1_rep1', 'DLK1_rep2')]=0
-cho_smartseq_NRBC_exp_df[ rownames(DLK_pos_NRBC_samrtseq2_df)[!rownames(DLK_pos_NRBC_samrtseq2_df) %in% rownames(cho_smartseq_NRBC_exp_df)],c('NRBC')]=0
-
-merged_df <- merge(cho_smartseq_NRBC_exp_df,DLK_pos_NRBC_samrtseq2_df, by = "row.names")
-rownames(merged_df)=merged_df$Row.names;merged_df=merged_df[,-1]
-merged_df=merged_df[rowSums(merged_df) >0,]
-merged_df=merged_df[c('HBG1','HBG2','HSPA1B','IGF2BP3','CA1','HBD','ANXA1','TSC22D3','CXCR4'),]
-
-p=pheatmap(merged_df,cluster_cols = F,col=colorRampPalette(colors = c('navy','white','firebrick3'))(100),cluster_rows = F)
+p=pheatmap(DLK_pos_NRBC_samrtseq2_df[c(fetal_markers,adult_markers)[ c(fetal_markers,adult_markers) %in% rownames(DLK_pos_NRBC_samrtseq2_df)],],cluster_cols = F,col=colorRampPalette(colors = c('navy','white','firebrick3'))(100),cluster_rows = F)
 ggsave(as.ggplot(p),filename='res_pic/main_figure5/mPBMC_smartseq2_fNRBC_heatmap.pdf',height = 6,width = 4)
+
 
 
 
